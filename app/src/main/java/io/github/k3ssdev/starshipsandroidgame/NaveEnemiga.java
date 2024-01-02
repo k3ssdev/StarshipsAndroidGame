@@ -2,29 +2,28 @@ package io.github.k3ssdev.starshipsandroidgame;
 
 import android.graphics.RectF;
 
+// Clase para representar las naves enemigas
 public class NaveEnemiga {
-    private float x, y;
+    private float posX, posY;
     private float velocidad;
 
-    public NaveEnemiga(int anchoPantalla, int altoPantalla) {
-        x = anchoPantalla;
-        y = (float) Math.floor(Math.random() * (altoPantalla - 200));
-        velocidad = 10;
+    public NaveEnemiga(int ancho, int alto) {
+        posY = Juego.random.nextInt(alto);
+        posX = ancho;
+        velocidad = 10; // Ajusta la velocidad de las naves enemigas
     }
 
     public void mover() {
-        x -= velocidad;
+        posX -= velocidad;
+
+        // Asegúrate de que la nave vuelva a aparecer cuando se salga de la pantalla
+        if (posX + Juego.radio < 0) {
+            posY = Juego.random.nextInt(Juego.alto);
+            posX = Juego.ancho;
+        }
     }
 
     public RectF getRect() {
-        return new RectF(x, y, x + 100, y + 100);
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
+        return new RectF((posX - Juego.radio), (posY - Juego.radio), (posX + Juego.radio), (posY + Juego.radio));
     }
 }

@@ -25,7 +25,7 @@ public class Juego extends View {
     public int posNaveEnemigaY;
     private RectF rectNaveJugador;
     private Integer puntuacion = 0;
-    private static Random random = new Random();
+    public static Random random = new Random();
 
     private Paint fondo = new Paint();
     private Paint naveJugador = new Paint();
@@ -38,6 +38,10 @@ public class Juego extends View {
 
     private List<Estrella> estrellas = new ArrayList<>();
     private List<NaveEnemiga> navesEnemigas = new ArrayList<>();
+
+    private long navesEnemigasDelay = 4000; // Retraso inicial para generar naves enemigas
+    private long aumentoFrecuencia = 120000; // 2 minutos en milisegundos
+    private TimerTask increaseFrequencyTask;
 
     public Juego(Context context) {
         super(context);
@@ -76,7 +80,31 @@ public class Juego extends View {
                     }
                 });
             }
-        }, 0, 1000); // Ajusta la frecuencia de generación de naves enemigas (1000 milisegundos en este ejemplo)
+        }, 0, navesEnemigasDelay);
+
+        // Inicializa el temporizador para aumentar gradualmente la frecuencia
+        increaseFrequencyTask = new TimerTask() {
+            @Override
+            public void run() {
+                navesEnemigasDelay -= 200; // Reduce el retraso en 0.2 segundos
+                // Reagenda el temporizador con el retraso actualizado
+                timerNavesEnemigas.cancel();
+                timerNavesEnemigas = new Timer();
+                timerNavesEnemigas.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        handler.post(new Runnable() {
+                            public void run() {
+                                generarNaveEnemiga();
+                            }
+                        });
+                    }
+                }, 0, navesEnemigasDelay);
+            }
+        };
+
+        // Programa la tarea para que se ejecute cada 2 minutos (aumentoFrecuencia)
+        timerNavesEnemigas.schedule(increaseFrequencyTask, aumentoFrecuencia, aumentoFrecuencia);
 
         // Inicializa el temporizador para generar estrellas
         timerEstrellas = new Timer();
@@ -188,68 +216,4 @@ public class Juego extends View {
         }
     }
 
-    // Clase para representar las estrellas
-    private static class Estrella {
-        private float x1, y1, x2, y2;
-
-        public Estrella(float x1, float y1, float x2, float y2) {
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
-        }
-
-        public float getX1() {
-            return x1;
-        }
-
-        public float getY1() {
-            return y1;
-        }
-
-        public float getX2() {
-            return x2;
-        }
-
-        public float getY2() {
-            return y2;
-        }
-
-        public void mover() {
-            x1 -= 2;  // Ajusta la velocidad de las estrellas
-            x2 -= 2;
-
-            // Asegúrate de que las estrellas vuelvan a aparecer cuando se salgan de la pantalla
-            if (x1 < 0) {
-                x1 = ancho;
-                x2 = x1 + random.nextInt(5) - 2;
-            }
-        }
-    }
-
-    // Clase para representar las naves enemigas
-    private static class NaveEnemiga {
-        private float posX, posY;
-        private float velocidad;
-
-        public NaveEnemiga(int ancho, int alto) {
-            posY = random.nextInt(alto);
-            posX = ancho;
-            velocidad = 10; // Ajusta la velocidad de las naves enemigas
-        }
-
-        public void mover() {
-            posX -= velocidad;
-
-            // Asegúrate de que la nave vuelva a aparecer cuando se salga de la pantalla
-            if (posX + radio < 0) {
-                posY = random.nextInt(alto);
-                posX = ancho;
-            }
-        }
-
-        public RectF getRect() {
-            return new RectF((posX - radio), (posY - radio), (posX + radio), (posY + radio));
-        }
-    }
 }
