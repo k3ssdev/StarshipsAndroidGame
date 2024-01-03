@@ -1,7 +1,11 @@
 package io.github.k3ssdev.starshipsandroidgame;
 
+import java.util.Random;
+
 // Clase para representar las estrellas
 public class Estrella {
+
+    private Random random = new Random();
     private float x1, y1, x2, y2;
 
     public Estrella(float x1, float y1, float x2, float y2) {
@@ -34,7 +38,7 @@ public class Estrella {
         // Asegúrate de que las estrellas vuelvan a aparecer cuando se salgan de la pantalla
         if (x1 < 0) {
             x1 = Juego.ancho;
-            x2 = x1 + Juego.random.nextInt(5) - 2;
+            x2 = x1 + random.nextInt(5) - 2;
         }
     }
 }

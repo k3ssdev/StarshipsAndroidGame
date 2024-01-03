@@ -1,11 +1,12 @@
 package io.github.k3ssdev.starshipsandroidgame;
 
-import static io.github.k3ssdev.starshipsandroidgame.Juego.random;
-
 import android.graphics.RectF;
+
+import java.util.Random;
 
 // Clase para representar las naves enemigas
 public class NaveEnemiga {
+    private Random random = new Random();
     private float posX, posY;
     private float velocidad;
     private static final float RADIO_NAVE = 65; // Ajusta el tamaño del radio según sea necesario

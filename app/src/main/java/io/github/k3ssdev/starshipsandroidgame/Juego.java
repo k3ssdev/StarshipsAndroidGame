@@ -1,5 +1,9 @@
 package io.github.k3ssdev.starshipsandroidgame;
 
+// Music: https://opengameart.org/content/space-dimensions-8bitretro-version
+// Laser sound: https://opengameart.org/content/laser-fire
+// Sprites: https://opengameart.org/content/space-ship-construction-kit
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,58 +34,45 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Juego extends View {
+
+    // Constantes para el juego
+    private static final float RADIO_JUGADOR = 65;
+    private static final int VELOCIDAD_MOVIMIENTO_SUAVE = 50;
+    private static final long RETRASO_ENTRE_DISPAROS = 300;
+
+    // Variables para el juego
     public static int ancho;
     public static int alto;
+    public static int radio;
     public int posX;
     public int posY;
-    public static int radio;
     public int posNaveEnemigaY;
     private RectF rectNaveJugador;
-    private Integer puntuacion = 0;
-    public static Random random = new Random();
-
     private Bitmap bitmapNaveJugador;
     private Bitmap bitmapNaveEnemiga;
     private MediaPlayer musicaFondo;
-
-    private Paint fondo = new Paint();
-    private Paint naveJugador = new Paint();
-    private Paint naveEnemiga = new Paint();
-    private Paint puntos = new Paint();
-
+    private MediaPlayer mediaPlayerDisparo;
+    private final Paint fondo = new Paint();
+    private final Paint naveJugador = new Paint();
+    private final Paint naveEnemiga = new Paint();
+    private final Paint puntos = new Paint();
     private Timer timerNavesEnemigas;
     private Timer timerEstrellas;
-    private Handler handler = new Handler();
-
-    private List<Estrella> estrellas = new ArrayList<>();
-    private List<NaveEnemiga> navesEnemigas = new ArrayList<>();
-
-    private long navesEnemigasDelay = 4000; // Retraso inicial para generar naves enemigas
-    private long aumentoFrecuencia = 120000; // 2 minutos en milisegundos
-    private TimerTask increaseFrequencyTask;
-
-    private String nombreJugador = "Jugador"; // Nombre predeterminado
-    private String dificultad = "Normal"; // Dificultad predeterminada
-
-    private static final int VELOCIDAD_NAVE = 40; // Ajusta la velocidad según sea necesario
-
-    private boolean juegoEnPausa = true; // Bandera para controlar si el juego está en pausa
-
-    private static final int VELOCIDAD_DISPARO = 20; // Ajusta la velocidad del disparo según sea necesario
-    private List<Disparo> disparos = new ArrayList<>();
-
     private Timer timerDisparo;
-    private boolean permitirDisparo = true;
-    private static final long RETRASO_ENTRE_DISPAROS = 300;
-    private boolean juegoTerminado = false;
-
-    private MediaPlayer mediaPlayerDisparo;
-
-    private static final float RADIO_JUGADOR = 65;
-
-    private static final int VELOCIDAD_MOVIMIENTO_SUAVE = 50; // Ajusta la velocidad de movimiento suave según sea necesario
+    private TimerTask increaseFrequencyTask;
+    private final Handler handler = new Handler();
+    private final List<Estrella> estrellas = new ArrayList<>();
+    private final List<NaveEnemiga> navesEnemigas = new ArrayList<>();
+    private final List<Disparo> disparos = new ArrayList<>();
+    private String nombreJugador = "Jugador";
+    private String dificultad = "Normal";
+    private boolean juegoEnPausa = true;
     private boolean moviendose = false;
+    private long navesEnemigasDelay = 4000;
+    private Integer puntuacion = 0;
+    private boolean permitirDisparo = true;
 
+    private final Random random = new Random();
 
     public Juego(Context context) {
         super(context);
@@ -308,6 +299,7 @@ public class Juego extends View {
         };
 
         // Programa la tarea para que se ejecute cada 2 minutos (aumentoFrecuencia)
+        long aumentoFrecuencia = 120000;
         timerNavesEnemigas.schedule(increaseFrequencyTask, aumentoFrecuencia, aumentoFrecuencia);
 
         // Inicializa el temporizador para generar estrellas
@@ -337,6 +329,8 @@ public class Juego extends View {
         RectF rectNaveJugador = new RectF(left, top, right, bottom);
         canvas.drawBitmap(bitmapNaveJugador, null, rectNaveJugador, null);
     }
+
+
 
 
 
@@ -464,7 +458,14 @@ public class Juego extends View {
         return true;
     }
 
+
+    // Método para actualizar la posición de la nave del jugador suavemente
     private void actualizarPosicionNaveSuavemente(int nuevaPosY) {
+        float left = 450 - RADIO_JUGADOR;
+        float top = posY - RADIO_JUGADOR;
+        float right = 450 + RADIO_JUGADOR;
+        float bottom = posY + RADIO_JUGADOR;
+
         if (posY < nuevaPosY) {
             posY += VELOCIDAD_MOVIMIENTO_SUAVE;
             if (posY > nuevaPosY) {
@@ -476,8 +477,11 @@ public class Juego extends View {
                 posY = nuevaPosY;
             }
         }
+
+        rectNaveJugador = new RectF(left, top, right, bottom);
         invalidate();
     }
+
 
     public void actualizarJuego() {
         moverNavesEnemigas();
@@ -626,7 +630,7 @@ public class Juego extends View {
         navesEnemigas.clear();
         estrellas.clear();
         disparos.clear();
-        juegoTerminado = true;
+        boolean juegoTerminado = true;
     }
 
 
@@ -646,6 +650,18 @@ public class Juego extends View {
             musicaFondo.release();
             musicaFondo = null;
         }
+    }
+
+    public void setRectNaveJugador(RectF rectNaveJugador) {
+        this.rectNaveJugador = rectNaveJugador;
+    }
+
+    public boolean isPermitirDisparo() {
+        return permitirDisparo;
+    }
+
+    public void setPermitirDisparo(boolean permitirDisparo) {
+        this.permitirDisparo = permitirDisparo;
     }
 }
 
