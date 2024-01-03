@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.k3ssdev.starshipsandroidgame"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"

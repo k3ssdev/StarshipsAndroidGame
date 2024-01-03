@@ -3,11 +3,14 @@ package io.github.k3ssdev.starshipsandroidgame;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class MainActivity extends AppCompatActivity {
     private Juego juego;
@@ -16,6 +19,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Oculta la barra de acción (ActionBar)
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+
+        // Oculta la barra de estado (barra superior)
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         setContentView(R.layout.activity_main);
 
         juego = findViewById(R.id.Pantalla);
