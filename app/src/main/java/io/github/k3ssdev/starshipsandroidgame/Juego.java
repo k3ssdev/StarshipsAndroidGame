@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
@@ -58,6 +59,10 @@ public class Juego extends View {
     private static final int VELOCIDAD_NAVE = 40; // Ajusta la velocidad según sea necesario
 
     private boolean juegoEnPausa = true; // Bandera para controlar si el juego está en pausa
+
+    private static final int VELOCIDAD_DISPARO = 20; // Ajusta la velocidad del disparo según sea necesario
+    private List<Disparo> disparos = new ArrayList<>();
+
 
     public Juego(Context context) {
         super(context);
@@ -260,7 +265,20 @@ public class Juego extends View {
 
         // Pinta la puntuación
         canvas.drawText(puntuacion.toString(), 150, 150, puntos);
+
+        // Pinta los disparos
+        Paint disparoPaint = new Paint();
+        disparoPaint.setColor(Color.BLUE);
+        for (Disparo disparo : disparos) {
+            canvas.drawCircle(disparo.getX(), disparo.getY(), 10, disparoPaint);
+        }
     }
+
+    private void disparar() {
+        Disparo disparo = new Disparo(250 + radio, posY);
+        disparos.add(disparo);
+    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -273,18 +291,18 @@ public class Juego extends View {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
                 // Movimiento vertical
-                int nuevaPosY = (int) event.getY();
+                posY = (int) event.getY();
                 // Limita el movimiento dentro de los límites de la pantalla
-                nuevaPosY = Math.max(radio, Math.min(alto - radio, nuevaPosY));
-
-                // Mueve la nave gradualmente hacia la posición tocada
-                moverNaveSuavemente(posY, nuevaPosY);
-
+                posY = Math.max(radio, Math.min(alto - radio, posY));
                 invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                disparar();
                 break;
         }
         return true;
     }
+
 
     private void moverNaveSuavemente(int posYActual, int nuevaPosY) {
         if (posYActual < nuevaPosY) {
@@ -304,8 +322,39 @@ public class Juego extends View {
         moverNavesEnemigas();
         moverEstrellas();
         detectarColision();
+        moverDisparos();
+        detectarColisionDisparos();
+        detectarColision();
+
         invalidate();
     }
+
+    // Agrega estos métodos a la clase Juego
+    private void moverDisparos() {
+        for (Disparo disparo : disparos) {
+            disparo.mover();
+        }
+    }
+
+    private void detectarColisionDisparos() {
+        List<Disparo> disparosEliminados = new ArrayList<>();
+
+        for (Disparo disparo : disparos) {
+            List<NaveEnemiga> navesEliminadas = new ArrayList<>();
+
+            for (NaveEnemiga nave : navesEnemigas) {
+                if (RectF.intersects(new RectF(disparo.getX(), disparo.getY(), disparo.getX(), disparo.getY()), nave.getRect())) {
+                    navesEliminadas.add(nave);
+                    disparosEliminados.add(disparo);
+                }
+            }
+
+            navesEnemigas.removeAll(navesEliminadas);
+        }
+
+        disparos.removeAll(disparosEliminados);
+    }
+
 
     private void moverNavesEnemigas() {
         for (NaveEnemiga nave : navesEnemigas) {
@@ -322,10 +371,26 @@ public class Juego extends View {
     private void detectarColision() {
         List<NaveEnemiga> navesEliminadas = new ArrayList<>();
 
-        for (NaveEnemiga nave : navesEnemigas) {
+        Iterator<NaveEnemiga> iterator = navesEnemigas.iterator();
+        while (iterator.hasNext()) {
+            NaveEnemiga nave = iterator.next();
+
             if (RectF.intersects(rectNaveJugador, nave.getRect())) {
-                puntuacion += 1;
-                navesEliminadas.add(nave);
+                // Colisión con nave enemiga, muestra "Game Over" y la puntuación
+                mostrarGameOver();
+                return;  // Sale del método para evitar la concurrencia
+            }
+
+            // Verifica colisiones con disparos
+            Iterator<Disparo> disparosIterator = disparos.iterator();
+            while (disparosIterator.hasNext()) {
+                Disparo disparo = disparosIterator.next();
+                if (RectF.intersects(disparo.getRect(), nave.getRect())) {
+                    // Colisión con disparo, incrementa la puntuación y elimina la nave y el disparo
+                    puntuacion += 1;
+                    disparosIterator.remove();
+                    navesEliminadas.add(nave);
+                }
             }
         }
 
@@ -337,4 +402,21 @@ public class Juego extends View {
             generarNaveEnemiga();
         }
     }
+
+    private void mostrarGameOver() {
+        // Muestra el mensaje de "Game Over" y la puntuación
+        Toast.makeText(getContext(), "Game Over. Puntuación: " + puntuacion, Toast.LENGTH_SHORT).show();
+        // Reinicia el juego o realiza alguna acción adicional según tus necesidades
+        reiniciarJuego();
+    }
+
+    private void reiniciarJuego() {
+        // Aquí puedes reiniciar las variables del juego, reiniciar timers, etc.
+        // Por ejemplo, podrías reiniciar la actividad o reiniciar el temporizador de generación de naves enemigas.
+        // También puedes agregar lógica adicional según tus necesidades.
+        // Este método debe realizar todas las acciones necesarias para reiniciar el juego.
+        // Puedes personalizarlo según tus necesidades específicas.
+        init();  // Reinicia el juego llamando al método init
+    }
 }
+
