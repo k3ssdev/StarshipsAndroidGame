@@ -157,84 +157,6 @@ public class Juego extends View {
         builder.show();
     }
 
-   /* private void iniciarJuego() {
-        fondo.setColor(Color.BLACK);
-        fondo.setStyle(Paint.Style.FILL_AND_STROKE);
-        naveJugador.setColor(Color.YELLOW);
-        naveJugador.setStyle(Paint.Style.FILL_AND_STROKE);
-        naveEnemiga.setColor(Color.RED);
-        naveEnemiga.setStyle(Paint.Style.FILL_AND_STROKE);
-        puntos.setTextAlign(Paint.Align.RIGHT);
-        puntos.setTextSize(100);
-        puntos.setColor(Color.WHITE);
-
-        // Inicializa el MediaPlayer para la música de fondo
-        musicaFondo = MediaPlayer.create(getContext(), R.raw.musica_fondo); // Reemplaza R.raw.musica_fondo con el ID de tu archivo de música
-        musicaFondo.setLooping(true); // Repetir la música de fondo
-        musicaFondo.start(); // Comienza la reproducción
-
-        // Inicializa el temporizador para generar naves enemigas
-        timerNavesEnemigas = new Timer();
-
-        // Temporizador para disparos
-        timerDisparo = new Timer();
-        timerNavesEnemigas.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        if (!juegoEnPausa) {
-                            generarNaveEnemiga();
-                        }
-                    }
-                });
-            }
-        }, 0, navesEnemigasDelay);
-
-
-        // Inicializa el temporizador para aumentar gradualmente la frecuencia
-        increaseFrequencyTask = new TimerTask() {
-            @Override
-            public void run() {
-                navesEnemigasDelay -= 200; // Reduce el retraso en 0.2 segundos
-                // Reagenda el temporizador con el retraso actualizado
-                timerNavesEnemigas.cancel();
-                timerNavesEnemigas = new Timer();
-                timerNavesEnemigas.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        handler.post(new Runnable() {
-                            public void run() {
-                                if (!juegoEnPausa) {
-                                    generarNaveEnemiga();
-                                }
-                            }
-                        });
-                    }
-                }, 0, navesEnemigasDelay);
-            }
-        };
-
-        // Programa la tarea para que se ejecute cada 2 minutos (aumentoFrecuencia)
-        timerNavesEnemigas.schedule(increaseFrequencyTask, aumentoFrecuencia, aumentoFrecuencia);
-
-
-        // Inicializa el temporizador para generar estrellas
-        timerEstrellas = new Timer();
-        timerEstrellas.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        if (!juegoEnPausa) {
-                            generarEstrella();
-                        }
-                    }
-                });
-            }
-        }, 0, 1000); // Ajusta la frecuencia de generación de estrellas (1000 milisegundos en este ejemplo)
-    }*/
-
     private void iniciarJuego() {
         fondo.setColor(Color.BLACK);
         fondo.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -491,12 +413,6 @@ public class Juego extends View {
         invalidate();
     }
 
-    // Agrega estos métodos a la clase Juego
-    private void moverDisparosVIEJO() {
-        for (Disparo disparo : disparos) {
-            disparo.mover();
-        }
-    }
     private void moverDisparos() {
         Iterator<Disparo> iterator = disparos.iterator();
         while (iterator.hasNext()) {
@@ -508,25 +424,6 @@ public class Juego extends View {
                 iterator.remove();
             }
         }
-    }
-
-    private void detectarColisionDisparos() {
-        List<Disparo> disparosEliminados = new ArrayList<>();
-
-        for (Disparo disparo : disparos) {
-            List<NaveEnemiga> navesEliminadas = new ArrayList<>();
-
-            for (NaveEnemiga nave : navesEnemigas) {
-                if (RectF.intersects(new RectF(disparo.getX(), disparo.getY(), disparo.getX(), disparo.getY()), nave.getRect())) {
-                    navesEliminadas.add(nave);
-                    disparosEliminados.add(disparo);
-                }
-            }
-
-            navesEnemigas.removeAll(navesEliminadas);
-        }
-
-        disparos.removeAll(disparosEliminados);
     }
 
 
@@ -545,10 +442,7 @@ public class Juego extends View {
     private void detectarColision() {
         List<NaveEnemiga> navesEliminadas = new ArrayList<>();
 
-        Iterator<NaveEnemiga> iterator = navesEnemigas.iterator();
-        while (iterator.hasNext()) {
-            NaveEnemiga nave = iterator.next();
-
+        for (NaveEnemiga nave : navesEnemigas) {
             //if (RectF.intersects(rectNaveJugador, nave.getRect())) {
             if (rectNaveJugador != null && RectF.intersects(rectNaveJugador, nave.getRect())) {
 
@@ -630,7 +524,6 @@ public class Juego extends View {
         navesEnemigas.clear();
         estrellas.clear();
         disparos.clear();
-        boolean juegoTerminado = true;
     }
 
 
@@ -656,12 +549,5 @@ public class Juego extends View {
         this.rectNaveJugador = rectNaveJugador;
     }
 
-    public boolean isPermitirDisparo() {
-        return permitirDisparo;
-    }
-
-    public void setPermitirDisparo(boolean permitirDisparo) {
-        this.permitirDisparo = permitirDisparo;
-    }
 }
 
