@@ -63,6 +63,8 @@ public class Juego extends View {
     private static final int VELOCIDAD_DISPARO = 20; // Ajusta la velocidad del disparo según sea necesario
     private List<Disparo> disparos = new ArrayList<>();
 
+    private boolean juegoTerminado = false;
+
 
     public Juego(Context context) {
         super(context);
@@ -321,7 +323,6 @@ public class Juego extends View {
     public void actualizarJuego() {
         moverNavesEnemigas();
         moverEstrellas();
-        detectarColision();
         moverDisparos();
         detectarColisionDisparos();
         detectarColision();
@@ -404,11 +405,31 @@ public class Juego extends View {
     }
 
     private void mostrarGameOver() {
-        // Muestra el mensaje de "Game Over" y la puntuación
-        Toast.makeText(getContext(), "Game Over. Puntuación: " + puntuacion, Toast.LENGTH_SHORT).show();
-        // Reinicia el juego o realiza alguna acción adicional según tus necesidades
-        reiniciarJuego();
+        // Muestra "Game Over" y la puntuación
+        ((Activity) getContext()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getContext(), "Game Over - Puntuación: " + puntuacion, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // Pausa el juego y realiza otras acciones según sea necesario
+        pausarJuego();
     }
+
+    private void pausarJuego() {
+        // Pausa el juego y realiza otras acciones según sea necesario
+        juegoEnPausa = true;
+        timerNavesEnemigas.cancel();
+        timerEstrellas.cancel();
+        increaseFrequencyTask.cancel();
+        navesEnemigasDelay = 4000; // Restaura el retraso inicial
+        navesEnemigas.clear();
+        estrellas.clear();
+        disparos.clear();
+        juegoTerminado = true;
+    }
+
 
     private void reiniciarJuego() {
         // Aquí puedes reiniciar las variables del juego, reiniciar timers, etc.
