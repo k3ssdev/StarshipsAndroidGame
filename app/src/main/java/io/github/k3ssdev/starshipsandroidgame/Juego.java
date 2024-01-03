@@ -3,6 +3,8 @@ package io.github.k3ssdev.starshipsandroidgame;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -38,6 +40,8 @@ public class Juego extends View {
     private Integer puntuacion = 0;
     public static Random random = new Random();
 
+    private Bitmap bitmapNaveJugador;
+    private Bitmap bitmapNaveEnemiga;
     private MediaPlayer musicaFondo;
 
     private Paint fondo = new Paint();
@@ -73,6 +77,12 @@ public class Juego extends View {
 
     private MediaPlayer mediaPlayerDisparo;
 
+    private static final float RADIO_JUGADOR = 65;
+
+    private static final int VELOCIDAD_MOVIMIENTO_SUAVE = 50; // Ajusta la velocidad de movimiento suave según sea necesario
+    private boolean moviendose = false;
+
+
     public Juego(Context context) {
         super(context);
         init();
@@ -89,6 +99,11 @@ public class Juego extends View {
     }
 
     private void init() {
+
+        // Carga las imágenes de jugador y enemigo
+        bitmapNaveJugador = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player);
+        bitmapNaveEnemiga = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.enemy);
+
         if (juegoEnPausa) {
             // Muestra un cuadro de diálogo solo si el juego está en pausa
             mostrarDialogoNombreYDificultad();
@@ -240,6 +255,10 @@ public class Juego extends View {
         puntos.setTextSize(100);
         puntos.setColor(Color.WHITE);
 
+
+
+
+        // Temporizador para disparos
         timerDisparo = new Timer();
 
         // Inicializa el MediaPlayer para la música de fondo
@@ -308,6 +327,28 @@ public class Juego extends View {
     }
 
 
+    // Método para dibujar la nave del jugador
+    private void dibujarNaveJugador(Canvas canvas) {
+        float left = 450 - RADIO_JUGADOR;
+        float top = posY - RADIO_JUGADOR;
+        float right = 450 + RADIO_JUGADOR;
+        float bottom = posY + RADIO_JUGADOR;
+
+        RectF rectNaveJugador = new RectF(left, top, right, bottom);
+        canvas.drawBitmap(bitmapNaveJugador, null, rectNaveJugador, null);
+    }
+
+
+
+    // Método para dibujar las naves enemigas
+    private void dibujarNavesEnemigas(Canvas canvas) {
+        for (NaveEnemiga nave : navesEnemigas) {
+            RectF rectNaveEnemiga = nave.getRect();
+            canvas.drawBitmap(bitmapNaveEnemiga, null, rectNaveEnemiga, null);
+        }
+    }
+
+
     private void generarNaveEnemiga() {
         NaveEnemiga nuevaNave = new NaveEnemiga(ancho, alto, dificultad);
         navesEnemigas.add(nuevaNave);
@@ -348,15 +389,12 @@ public class Juego extends View {
             canvas.drawLine(s.getX1(), s.getY1(), s.getX2(), s.getY2(), estrella);
         }
 
-        // Pinta la nave del jugador con margen a la izquierda
-        rectNaveJugador = new RectF(250, (posY - radio), (250 + 2 * radio), (posY + radio));
-        canvas.drawOval(rectNaveJugador, naveJugador);
+
+        // Pinta la nave del jugador
+        dibujarNaveJugador(canvas);
 
         // Pinta las naves enemigas
-        for (NaveEnemiga nave : navesEnemigas) {
-            RectF rectNaveEnemiga = nave.getRect();
-            canvas.drawOval(rectNaveEnemiga, naveEnemiga);
-        }
+        dibujarNavesEnemigas(canvas);
 
         // Pinta la puntuación
         canvas.drawText(puntuacion.toString(), 150, 150, puntos);
@@ -379,7 +417,7 @@ public class Juego extends View {
         }
 
         // Lógica de disparo
-        Disparo disparo = new Disparo(250 + radio, posY);
+        Disparo disparo = new Disparo(450 + radio, posY);
         disparos.add(disparo);
     }
 
@@ -410,33 +448,35 @@ public class Juego extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                moviendose = true;
+                actualizarPosicionNaveSuavemente((int) event.getY());
+                break;
             case MotionEvent.ACTION_MOVE:
-                // Movimiento vertical
-                posY = (int) event.getY();
-                // Limita el movimiento dentro de los límites de la pantalla
-                posY = Math.max(radio, Math.min(alto - radio, posY));
-                invalidate();
+                if (moviendose) {
+                    actualizarPosicionNaveSuavemente((int) event.getY());
+                }
                 break;
             case MotionEvent.ACTION_UP:
+                moviendose = false;
                 disparar();
                 break;
         }
         return true;
     }
 
-
-    private void moverNaveSuavemente(int posYActual, int nuevaPosY) {
-        if (posYActual < nuevaPosY) {
-            posY += VELOCIDAD_NAVE;
+    private void actualizarPosicionNaveSuavemente(int nuevaPosY) {
+        if (posY < nuevaPosY) {
+            posY += VELOCIDAD_MOVIMIENTO_SUAVE;
             if (posY > nuevaPosY) {
                 posY = nuevaPosY;
             }
-        } else if (posYActual > nuevaPosY) {
-            posY -= VELOCIDAD_NAVE;
+        } else if (posY > nuevaPosY) {
+            posY -= VELOCIDAD_MOVIMIENTO_SUAVE;
             if (posY < nuevaPosY) {
                 posY = nuevaPosY;
             }
         }
+        invalidate();
     }
 
     public void actualizarJuego() {
@@ -505,7 +545,9 @@ public class Juego extends View {
         while (iterator.hasNext()) {
             NaveEnemiga nave = iterator.next();
 
-            if (RectF.intersects(rectNaveJugador, nave.getRect())) {
+            //if (RectF.intersects(rectNaveJugador, nave.getRect())) {
+            if (rectNaveJugador != null && RectF.intersects(rectNaveJugador, nave.getRect())) {
+
                 // Colisión con nave enemiga, muestra "Game Over" y la puntuación
                 mostrarGameOver();
                 return;  // Sale del método para evitar la concurrencia

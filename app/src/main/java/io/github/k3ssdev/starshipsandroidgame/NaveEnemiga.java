@@ -8,6 +8,7 @@ import android.graphics.RectF;
 public class NaveEnemiga {
     private float posX, posY;
     private float velocidad;
+    private static final float RADIO_NAVE = 65; // Ajusta el tamaño del radio según sea necesario
 
     public NaveEnemiga(int ancho, int alto) {
         posY = random.nextInt(alto);
@@ -42,18 +43,17 @@ public class NaveEnemiga {
         }
     }
 
-
     public void mover() {
         posX -= velocidad;
 
         // Asegúrate de que la nave vuelva a aparecer cuando se salga de la pantalla
-        if (posX + Juego.radio < 0) {
+        if (posX + RADIO_NAVE < 0) {
             posY = random.nextInt(Juego.alto);
             posX = Juego.ancho;
         }
     }
 
     public RectF getRect() {
-        return new RectF((posX - Juego.radio), (posY - Juego.radio), (posX + Juego.radio), (posY + Juego.radio));
+        return new RectF((posX - RADIO_NAVE), (posY - RADIO_NAVE), (posX + RADIO_NAVE), (posY + RADIO_NAVE));
     }
 }
