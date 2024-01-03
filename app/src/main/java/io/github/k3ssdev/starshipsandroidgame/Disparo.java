@@ -5,7 +5,7 @@ import android.graphics.RectF;
 public class Disparo {
     private float x;
     private float y;
-    private static final int VELOCIDAD = 10; // Ajusta la velocidad del disparo según sea necesario
+    private static final int VELOCIDAD = 20; // Ajusta la velocidad del disparo según sea necesario
     private RectF rect;
 
     public Disparo(float x, float y) {
@@ -30,6 +30,6 @@ public class Disparo {
         x += VELOCIDAD;  // Cambia el eje de movimiento a la derecha
         // Actualiza la posición del rectángulo después de mover el disparo
         rect.left = x;
-        rect.right = x + 10; // Ajusta el tamaño del rectángulo según sea necesario
+        rect.right = x + 30; // Ajusta el tamaño del rectángulo según sea necesario
     }
 }

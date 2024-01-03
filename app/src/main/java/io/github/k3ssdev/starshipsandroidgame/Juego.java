@@ -63,6 +63,9 @@ public class Juego extends View {
     private static final int VELOCIDAD_DISPARO = 20; // Ajusta la velocidad del disparo según sea necesario
     private List<Disparo> disparos = new ArrayList<>();
 
+    private Timer timerDisparo;
+    private boolean permitirDisparo = true;
+    private static final long RETRASO_ENTRE_DISPAROS = 300;
     private boolean juegoTerminado = false;
 
 
@@ -88,6 +91,7 @@ public class Juego extends View {
         } else {
             // Inicializa el juego solo si no está en pausa
             iniciarJuego();
+
         }
     }
 
@@ -156,6 +160,9 @@ public class Juego extends View {
 
         // Inicializa el temporizador para generar naves enemigas
         timerNavesEnemigas = new Timer();
+
+        // Temporizador para disparos
+        timerDisparo = new Timer();
         timerNavesEnemigas.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -234,6 +241,7 @@ public class Juego extends View {
         }
     }
 
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -254,7 +262,6 @@ public class Juego extends View {
             canvas.drawLine(s.getX1(), s.getY1(), s.getX2(), s.getY2(), estrella);
         }
 
-
         // Pinta la nave del jugador con margen a la izquierda
         rectNaveJugador = new RectF(250, (posY - radio), (250 + 2 * radio), (posY + radio));
         canvas.drawOval(rectNaveJugador, naveJugador);
@@ -270,17 +277,39 @@ public class Juego extends View {
 
         // Pinta los disparos
         Paint disparoPaint = new Paint();
-        disparoPaint.setColor(Color.BLUE);
+        disparoPaint.setColor(Color.GREEN);  // Ajusta el color del disparo según sea necesario
         for (Disparo disparo : disparos) {
-            canvas.drawCircle(disparo.getX(), disparo.getY(), 10, disparoPaint);
+            float longitudLaser = 50;  // Ajusta la longitud del láser según sea necesario
+            canvas.drawRect(disparo.getX(), disparo.getY(), disparo.getX() + longitudLaser, disparo.getY() + 5, disparoPaint);
         }
     }
 
-    private void disparar() {
+
+
+    private void dispararViejo() {
         Disparo disparo = new Disparo(250 + radio, posY);
         disparos.add(disparo);
     }
 
+    private void disparar() {
+        if (permitirDisparo) {
+            Disparo disparo = new Disparo(250 + radio, posY);
+            disparos.add(disparo);
+
+            // Iniciar temporizador para el retraso entre disparos
+            iniciarTemporizadorDisparo();
+        }
+    }
+
+    private void iniciarTemporizadorDisparo() {
+        permitirDisparo = false;
+        timerDisparo.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                permitirDisparo = true;
+            }
+        }, RETRASO_ENTRE_DISPAROS);
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -323,17 +352,27 @@ public class Juego extends View {
     public void actualizarJuego() {
         moverNavesEnemigas();
         moverEstrellas();
-        moverDisparos();
-        detectarColisionDisparos();
+        moverDisparos(); // Agregado para mover los disparos
         detectarColision();
-
         invalidate();
     }
 
     // Agrega estos métodos a la clase Juego
-    private void moverDisparos() {
+    private void moverDisparosVIEJO() {
         for (Disparo disparo : disparos) {
             disparo.mover();
+        }
+    }
+    private void moverDisparos() {
+        Iterator<Disparo> iterator = disparos.iterator();
+        while (iterator.hasNext()) {
+            Disparo disparo = iterator.next();
+            disparo.mover();
+
+            // Eliminar disparos que salen de la pantalla
+            if (disparo.getX() > ancho) {
+                iterator.remove();
+            }
         }
     }
 
@@ -439,5 +478,19 @@ public class Juego extends View {
         // Puedes personalizarlo según tus necesidades específicas.
         init();  // Reinicia el juego llamando al método init
     }
+
+    /*private void detenerMusicaFondo() {
+        if (musicaFondo != null) {
+            musicaFondo.pause();
+            // Detener el temporizador de disparo
+            if (timerDisparo != null) {
+                timerDisparo.cancel();
+                timerDisparo.purge();
+            }
+            // Asegúrate de liberar los recursos del MediaPlayer cuando ya no se necesiten
+            musicaFondo.release();
+            musicaFondo = null;
+        }
+    }*/
 }
 
