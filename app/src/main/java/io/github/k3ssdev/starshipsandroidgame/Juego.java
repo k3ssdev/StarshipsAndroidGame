@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -36,6 +37,8 @@ public class Juego extends View {
     private RectF rectNaveJugador;
     private Integer puntuacion = 0;
     public static Random random = new Random();
+
+    private MediaPlayer musicaFondo;
 
     private Paint fondo = new Paint();
     private Paint naveJugador = new Paint();
@@ -68,6 +71,7 @@ public class Juego extends View {
     private static final long RETRASO_ENTRE_DISPAROS = 300;
     private boolean juegoTerminado = false;
 
+    private MediaPlayer mediaPlayerDisparo;
 
     public Juego(Context context) {
         super(context);
@@ -147,7 +151,7 @@ public class Juego extends View {
         builder.show();
     }
 
-    private void iniciarJuego() {
+   /* private void iniciarJuego() {
         fondo.setColor(Color.BLACK);
         fondo.setStyle(Paint.Style.FILL_AND_STROKE);
         naveJugador.setColor(Color.YELLOW);
@@ -157,6 +161,11 @@ public class Juego extends View {
         puntos.setTextAlign(Paint.Align.RIGHT);
         puntos.setTextSize(100);
         puntos.setColor(Color.WHITE);
+
+        // Inicializa el MediaPlayer para la música de fondo
+        musicaFondo = MediaPlayer.create(getContext(), R.raw.musica_fondo); // Reemplaza R.raw.musica_fondo con el ID de tu archivo de música
+        musicaFondo.setLooping(true); // Repetir la música de fondo
+        musicaFondo.start(); // Comienza la reproducción
 
         // Inicializa el temporizador para generar naves enemigas
         timerNavesEnemigas = new Timer();
@@ -176,7 +185,6 @@ public class Juego extends View {
             }
         }, 0, navesEnemigasDelay);
 
-        // ... (resto del código)
 
         // Inicializa el temporizador para aumentar gradualmente la frecuencia
         increaseFrequencyTask = new TimerTask() {
@@ -204,7 +212,84 @@ public class Juego extends View {
         // Programa la tarea para que se ejecute cada 2 minutos (aumentoFrecuencia)
         timerNavesEnemigas.schedule(increaseFrequencyTask, aumentoFrecuencia, aumentoFrecuencia);
 
-        // ... (resto del código)
+
+        // Inicializa el temporizador para generar estrellas
+        timerEstrellas = new Timer();
+        timerEstrellas.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        if (!juegoEnPausa) {
+                            generarEstrella();
+                        }
+                    }
+                });
+            }
+        }, 0, 1000); // Ajusta la frecuencia de generación de estrellas (1000 milisegundos en este ejemplo)
+    }*/
+
+    private void iniciarJuego() {
+        fondo.setColor(Color.BLACK);
+        fondo.setStyle(Paint.Style.FILL_AND_STROKE);
+        naveJugador.setColor(Color.YELLOW);
+        naveJugador.setStyle(Paint.Style.FILL_AND_STROKE);
+        naveEnemiga.setColor(Color.RED);
+        naveEnemiga.setStyle(Paint.Style.FILL_AND_STROKE);
+        puntos.setTextAlign(Paint.Align.RIGHT);
+        puntos.setTextSize(100);
+        puntos.setColor(Color.WHITE);
+
+        timerDisparo = new Timer();
+
+        // Inicializa el MediaPlayer para la música de fondo
+        musicaFondo = MediaPlayer.create(getContext(), R.raw.music);
+        musicaFondo.setLooping(true); // Repetir la música de fondo
+        musicaFondo.start(); // Comienza la reproducción
+
+        // Inicializa el MediaPlayer para el sonido de disparo
+        mediaPlayerDisparo = MediaPlayer.create(getContext(), R.raw.laser1);
+
+        // Inicializa el temporizador para generar naves enemigas
+        timerNavesEnemigas = new Timer();
+        timerNavesEnemigas.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        if (!juegoEnPausa) {
+                            generarNaveEnemiga();
+                        }
+                    }
+                });
+            }
+        }, 0, navesEnemigasDelay);
+
+        // Inicializa el temporizador para aumentar gradualmente la frecuencia
+        increaseFrequencyTask = new TimerTask() {
+            @Override
+            public void run() {
+                navesEnemigasDelay -= 200; // Reduce el retraso en 0.2 segundos
+                // Reagenda el temporizador con el retraso actualizado
+                timerNavesEnemigas.cancel();
+                timerNavesEnemigas = new Timer();
+                timerNavesEnemigas.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        handler.post(new Runnable() {
+                            public void run() {
+                                if (!juegoEnPausa) {
+                                    generarNaveEnemiga();
+                                }
+                            }
+                        });
+                    }
+                }, 0, navesEnemigasDelay);
+            }
+        };
+
+        // Programa la tarea para que se ejecute cada 2 minutos (aumentoFrecuencia)
+        timerNavesEnemigas.schedule(increaseFrequencyTask, aumentoFrecuencia, aumentoFrecuencia);
 
         // Inicializa el temporizador para generar estrellas
         timerEstrellas = new Timer();
@@ -221,6 +306,7 @@ public class Juego extends View {
             }
         }, 0, 1000); // Ajusta la frecuencia de generación de estrellas (1000 milisegundos en este ejemplo)
     }
+
 
     private void generarNaveEnemiga() {
         NaveEnemiga nuevaNave = new NaveEnemiga(ancho, alto, dificultad);
@@ -285,19 +371,23 @@ public class Juego extends View {
     }
 
 
+    // Método para disparar
+    private void disparar() {
+        // Reproducir sonido de disparo
+        if (mediaPlayerDisparo != null) {
+            mediaPlayerDisparo.start();
+        }
 
-    private void dispararViejo() {
+        // Lógica de disparo
         Disparo disparo = new Disparo(250 + radio, posY);
         disparos.add(disparo);
     }
 
-    private void disparar() {
-        if (permitirDisparo) {
-            Disparo disparo = new Disparo(250 + radio, posY);
-            disparos.add(disparo);
-
-            // Iniciar temporizador para el retraso entre disparos
-            iniciarTemporizadorDisparo();
+    // Detener la reproducción del sonido al finalizar el juego
+    private void detenerSonidoDisparo() {
+        if (mediaPlayerDisparo != null) {
+            mediaPlayerDisparo.release();
+            mediaPlayerDisparo = null;
         }
     }
 
@@ -444,17 +534,45 @@ public class Juego extends View {
     }
 
     private void mostrarGameOver() {
+        // Detener la música de fondo y sonidos
+        detenerMusicaFondo();
+        detenerSonidoDisparo();
+
         // Muestra "Game Over" y la puntuación
         ((Activity) getContext()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(getContext(), "Game Over - Puntuación: " + puntuacion, Toast.LENGTH_LONG).show();
+
+                // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("¿Desea reiniciar el juego?");
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reiniciarJuego();
+                    }
+                });
+
+                // Agrega botón negativo para cerrar la aplicación
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Cierra la actividad actual (la aplicación)
+                        ((Activity) getContext()).finish();
+                    }
+                });
+
+                // Muestra realmente el cuadro de diálogo
+                builder.show();
             }
         });
 
         // Pausa el juego y realiza otras acciones según sea necesario
         pausarJuego();
     }
+
+
 
     private void pausarJuego() {
         // Pausa el juego y realiza otras acciones según sea necesario
@@ -471,15 +589,10 @@ public class Juego extends View {
 
 
     private void reiniciarJuego() {
-        // Aquí puedes reiniciar las variables del juego, reiniciar timers, etc.
-        // Por ejemplo, podrías reiniciar la actividad o reiniciar el temporizador de generación de naves enemigas.
-        // También puedes agregar lógica adicional según tus necesidades.
-        // Este método debe realizar todas las acciones necesarias para reiniciar el juego.
-        // Puedes personalizarlo según tus necesidades específicas.
         init();  // Reinicia el juego llamando al método init
     }
 
-    /*private void detenerMusicaFondo() {
+    private void detenerMusicaFondo() {
         if (musicaFondo != null) {
             musicaFondo.pause();
             // Detener el temporizador de disparo
@@ -491,6 +604,6 @@ public class Juego extends View {
             musicaFondo.release();
             musicaFondo = null;
         }
-    }*/
+    }
 }
 
