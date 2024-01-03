@@ -4,9 +4,9 @@ import android.graphics.RectF;
 
 public class Disparo {
     private float x;
-    private float y;
+    private final float y;
     private static final int VELOCIDAD = 20; // Ajusta la velocidad del disparo según sea necesario
-    private RectF rect;
+    private final RectF rect;
 
     public Disparo(float x, float y) {
         this.x = x;

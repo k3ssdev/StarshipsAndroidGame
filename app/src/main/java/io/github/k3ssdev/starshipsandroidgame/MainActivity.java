@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     private Juego juego;
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,17 +21,14 @@ public class MainActivity extends AppCompatActivity {
         juego = findViewById(R.id.Pantalla);
 
         ViewTreeObserver obs = juego.getViewTreeObserver();
-        obs.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                // Se calcula el ancho y alto una vez ya se ha pintado el layout
-                juego.ancho = juego.getWidth();
-                juego.alto = juego.getHeight();
-                juego.posX = 250;  // Establece la posición inicial de la nave del jugador
-                juego.posY = juego.alto / 2;  // Centra la nave del jugador verticalmente
-                juego.radio = 50;
-                juego.posNaveEnemigaY = 50;
-            }
+        obs.addOnGlobalLayoutListener(() -> {
+            // Se calcula el ancho y alto una vez ya se ha pintado el layout
+            Juego.ancho = juego.getWidth();
+            Juego.alto = juego.getHeight();
+            juego.posX = 250;  // Establece la posición inicial de la nave del jugador
+            juego.posY = Juego.alto / 2;  // Centra la nave del jugador verticalmente
+            Juego.radio = 50;
+            juego.posNaveEnemigaY = 50;
         });
 
         // Ejecutamos la actualización del juego cada 20 milisegundos
@@ -39,11 +36,7 @@ public class MainActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        juego.actualizarJuego();
-                    }
-                });
+                handler.post(() -> juego.actualizarJuego());
             }
         }, 0, 30);
     }

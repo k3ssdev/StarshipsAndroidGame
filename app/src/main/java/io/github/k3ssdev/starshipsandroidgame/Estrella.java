@@ -5,8 +5,11 @@ import java.util.Random;
 // Clase para representar las estrellas
 public class Estrella {
 
-    private Random random = new Random();
-    private float x1, y1, x2, y2;
+    private final Random random = new Random();
+    private float x1;
+    private final float y1;
+    private float x2;
+    private final float y2;
 
     public Estrella(float x1, float y1, float x2, float y2) {
         this.x1 = x1;

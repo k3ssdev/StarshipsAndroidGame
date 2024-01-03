@@ -4,9 +4,9 @@ package io.github.k3ssdev.starshipsandroidgame;
 // Laser sound: https://opengameart.org/content/laser-fire
 // Sprites: https://opengameart.org/content/space-ship-construction-kit
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ public class Juego extends View {
     // Constantes para el juego
     private static final float RADIO_JUGADOR = 65;
     private static final int VELOCIDAD_MOVIMIENTO_SUAVE = 50;
-    private static final long RETRASO_ENTRE_DISPAROS = 300;
 
     // Variables para el juego
     public static int ancho;
@@ -70,7 +70,6 @@ public class Juego extends View {
     private boolean moviendose = false;
     private long navesEnemigasDelay = 4000;
     private Integer puntuacion = 0;
-    private boolean permitirDisparo = true;
 
     private final Random random = new Random();
 
@@ -128,29 +127,23 @@ public class Juego extends View {
         builder.setView(viewInflated);
 
         // Botón "Aceptar" en el cuadro de diálogo
-        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Obtenemos el nombre ingresado y la dificultad seleccionada
-                nombreJugador = input.getText().toString();
-                dificultad = dificultadSpinner.getSelectedItem().toString();
+        builder.setPositiveButton("Aceptar", (dialog, which) -> {
+            // Obtenemos el nombre ingresado y la dificultad seleccionada
+            nombreJugador = input.getText().toString();
+            dificultad = dificultadSpinner.getSelectedItem().toString();
 
-                // Mostramos un mensaje de bienvenida
-                Toast.makeText(getContext(), "¡Bienvenido, " + nombreJugador + "!", Toast.LENGTH_SHORT).show();
+            // Mostramos un mensaje de bienvenida
+            Toast.makeText(getContext(), "¡Bienvenido, " + nombreJugador + "!", Toast.LENGTH_SHORT).show();
 
-                // Inicializamos el juego después de hacer clic en Aceptar
-                juegoEnPausa = false;
-                iniciarJuego();
-            }
+            // Inicializamos el juego después de hacer clic en Aceptar
+            juegoEnPausa = false;
+            iniciarJuego();
         });
 
         // Botón "Cancelar" en el cuadro de diálogo
-        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Si el usuario cancela, cierra la aplicación
-                ((Activity) getContext()).finish();
-            }
+        builder.setNegativeButton("Cancelar", (dialog, which) -> {
+            // Si el usuario cancela, cierra la aplicación
+            ((Activity) getContext()).finish();
         });
 
         builder.setCancelable(false); // Evitamos que se cierre el cuadro de diálogo al tocar fuera de él
@@ -187,11 +180,9 @@ public class Juego extends View {
         timerNavesEnemigas.schedule(new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        if (!juegoEnPausa) {
-                            generarNaveEnemiga();
-                        }
+                handler.post(() -> {
+                    if (!juegoEnPausa) {
+                        generarNaveEnemiga();
                     }
                 });
             }
@@ -208,11 +199,9 @@ public class Juego extends View {
                 timerNavesEnemigas.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        handler.post(new Runnable() {
-                            public void run() {
-                                if (!juegoEnPausa) {
-                                    generarNaveEnemiga();
-                                }
+                        handler.post(() -> {
+                            if (!juegoEnPausa) {
+                                generarNaveEnemiga();
                             }
                         });
                     }
@@ -229,11 +218,9 @@ public class Juego extends View {
         timerEstrellas.schedule(new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        if (!juegoEnPausa) {
-                            generarEstrella();
-                        }
+                handler.post(() -> {
+                    if (!juegoEnPausa) {
+                        generarEstrella();
                     }
                 });
             }
@@ -278,20 +265,14 @@ public class Juego extends View {
         estrellas.add(new Estrella(x1, y1, x2, y2));
     }
 
-    private void ajustarVelocidadNavesEnemigas() {
-        for (NaveEnemiga nave : navesEnemigas) {
-            nave.ajustarVelocidad(dificultad);
-        }
-    }
-
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         // Pinta el fondo con estrellas
         canvas.drawColor(Color.BLACK);  // Fondo negro
-        Paint estrella = new Paint();
+        @SuppressLint("DrawAllocation") Paint estrella = new Paint();
         estrella.setColor(Color.WHITE);
         estrella.setStrokeWidth(2);
 
@@ -316,7 +297,7 @@ public class Juego extends View {
         canvas.drawText(puntuacion.toString(), 150, 150, puntos);
 
         // Pinta los disparos
-        Paint disparoPaint = new Paint();
+        @SuppressLint("DrawAllocation") Paint disparoPaint = new Paint();
         disparoPaint.setColor(Color.GREEN);  // Ajusta el color del disparo según sea necesario
         for (Disparo disparo : disparos) {
             float longitudLaser = 50;  // Ajusta la longitud del láser según sea necesario
@@ -345,16 +326,7 @@ public class Juego extends View {
         }
     }
 
-    private void iniciarTemporizadorDisparo() {
-        permitirDisparo = false;
-        timerDisparo.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                permitirDisparo = true;
-            }
-        }, RETRASO_ENTRE_DISPAROS);
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // Verifica si el juego está en pausa antes de procesar el evento táctil
@@ -479,33 +451,22 @@ public class Juego extends View {
         detenerSonidoDisparo();
 
         // Muestra "Game Over" y la puntuación
-        ((Activity) getContext()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getContext(), "Game Over - Puntuación: " + puntuacion, Toast.LENGTH_LONG).show();
+        ((Activity) getContext()).runOnUiThread(() -> {
+            Toast.makeText(getContext(), "Game Over - Puntuación: " + puntuacion, Toast.LENGTH_LONG).show();
 
-                // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("¿Desea reiniciar el juego?");
-                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        reiniciarJuego();
-                    }
-                });
+            // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("¿Desea reiniciar el juego?");
+            builder.setPositiveButton("Sí", (dialog, which) -> reiniciarJuego());
 
-                // Agrega botón negativo para cerrar la aplicación
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Cierra la actividad actual (la aplicación)
-                        ((Activity) getContext()).finish();
-                    }
-                });
+            // Agrega botón negativo para cerrar la aplicación
+            builder.setNegativeButton("No", (dialog, which) -> {
+                // Cierra la actividad actual (la aplicación)
+                ((Activity) getContext()).finish();
+            });
 
-                // Muestra realmente el cuadro de diálogo
-                builder.show();
-            }
+            // Muestra realmente el cuadro de diálogo
+            builder.show();
         });
 
         // Pausa el juego y realiza otras acciones según sea necesario
@@ -543,10 +504,6 @@ public class Juego extends View {
             musicaFondo.release();
             musicaFondo = null;
         }
-    }
-
-    public void setRectNaveJugador(RectF rectNaveJugador) {
-        this.rectNaveJugador = rectNaveJugador;
     }
 
 }

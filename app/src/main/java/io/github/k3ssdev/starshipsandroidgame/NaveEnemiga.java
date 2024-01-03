@@ -6,16 +6,10 @@ import java.util.Random;
 
 // Clase para representar las naves enemigas
 public class NaveEnemiga {
-    private Random random = new Random();
+    private final Random random = new Random();
     private float posX, posY;
     private float velocidad;
     private static final float RADIO_NAVE = 65; // Ajusta el tamaño del radio según sea necesario
-
-    public NaveEnemiga(int ancho, int alto) {
-        posY = random.nextInt(alto);
-        posX = ancho;
-        velocidad = 10; // Ajusta la velocidad de las naves enemigas
-    }
 
     // Añade un nuevo constructor a la clase NaveEnemiga
     public NaveEnemiga(int ancho, int alto, String dificultad) {
@@ -32,9 +26,7 @@ public class NaveEnemiga {
             case "Fácil":
                 velocidad = 5; // Velocidad más baja para Fácil
                 break;
-            case "Normal":
-                velocidad = 10; // Velocidad normal para Normal
-                break;
+            // Velocidad normal para Normal
             case "Difícil":
                 velocidad = 15; // Velocidad más alta para Difícil
                 break;
