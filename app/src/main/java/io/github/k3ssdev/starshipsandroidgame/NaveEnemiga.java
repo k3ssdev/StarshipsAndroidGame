@@ -6,27 +6,25 @@ import java.util.Random;
 
 // Clase para representar las naves enemigas
 public class NaveEnemiga {
+
     private final Random random = new Random();
     private float posX, posY;
     private float velocidad;
     private static final float RADIO_NAVE = 65; // Ajusta el tamaño del radio según sea necesario
 
-    // Añade un nuevo constructor a la clase NaveEnemiga
+    // Constructor que inicializa la posición y velocidad de la nave enemiga
     public NaveEnemiga(int ancho, int alto, String dificultad) {
         posY = random.nextInt(alto);
         posX = ancho;
-        // Ajusta la velocidad de las naves en función de la dificultad
-        ajustarVelocidad(dificultad);
+        ajustarVelocidad(dificultad); // Ajusta la velocidad según la dificultad
     }
 
-    // Añade el método ajustarVelocidad a la clase NaveEnemiga
+    // Método para ajustar la velocidad de las naves en función de la dificultad
     public void ajustarVelocidad(String dificultad) {
-        // Ajusta la velocidad de las naves en función de la dificultad
         switch (dificultad) {
             case "Fácil":
                 velocidad = 5; // Velocidad más baja para Fácil
                 break;
-            // Velocidad normal para Normal
             case "Difícil":
                 velocidad = 15; // Velocidad más alta para Difícil
                 break;
@@ -36,16 +34,18 @@ public class NaveEnemiga {
         }
     }
 
+    // Método para mover la nave enemiga
     public void mover() {
         posX -= velocidad;
 
-        // Asegúrate de que la nave vuelva a aparecer cuando se salga de la pantalla
+        // La nave vuelve a aparecer cuando se salga de la pantalla
         if (posX + RADIO_NAVE < 0) {
             posY = random.nextInt(Juego.alto);
             posX = Juego.ancho;
         }
     }
 
+    // Método para obtener el rectángulo asociado a la nave enemiga
     public RectF getRect() {
         return new RectF((posX - RADIO_NAVE), (posY - RADIO_NAVE), (posX + RADIO_NAVE), (posY + RADIO_NAVE));
     }
