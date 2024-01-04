@@ -1,9 +1,8 @@
 # Starships Android Game
 
-![Game Screenshot](starships.gif)
-
 Starships Android Game es un juego simple desarrollado en Android como proyecto para la asignatura M08 (Programación para dispositivos móviles) de DAM. ¡Pilota la nave, esquiva las naves enemigas y destrúyelas para obtener la puntuación más alta!
 
+![Game Screenshot](starships.gif)
 
 ## Características Adicionales
 
