@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- res/layout/dialog_nombre_dificultad.xml -->
 
-    <!-- res/layout/dialog_nombre_dificultad.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <!-- EditText para ingresar el nombre -->
+    <EditText
+        android:id="@+id/editTextNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:hint="Nombre de jugador" />
 
-        <!-- EditText para ingresar el nombre -->
-        <EditText
-            android:id="@+id/editTextNombre"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nombre de jugador" />
+    <!-- Spinner para seleccionar la dificultad -->
+    <Spinner
+        android:id="@+id/spinnerDificultad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <!-- Spinner para seleccionar la dificultad -->
-        <Spinner
-            android:id="@+id/spinnerDificultad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <!-- Credits TextView with copyright symbol and year -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="© 2024 Alberto Pérez del Río"
+        android:gravity="center"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="italic" />
 
-    </LinearLayout>
-
-
+</LinearLayout>
