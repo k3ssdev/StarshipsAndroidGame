@@ -53,5 +53,3 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 - **Música**: [Space Dimensions (8bit/Retro Version)](https://opengameart.org/content/space-dimensions-8bitretro-version) (Licencia: Creative Commons)
 - **Sonido de Laser**: [Laser Fire](https://opengameart.org/content/laser-fire) (Licencia: Creative Commons)
 - **Sprites de Naves**: [Space Ship Construction Kit](https://opengameart.org/content/space-ship-construction-kit) (Licencia: GPL-3.0)
-
-Ten en cuenta que debes respetar y cumplir con los términos de las licencias de cada recurso utilizado en tu proyecto.
