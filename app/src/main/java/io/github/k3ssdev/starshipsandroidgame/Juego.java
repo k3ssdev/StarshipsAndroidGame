@@ -124,6 +124,10 @@ public class Juego extends View {
 
         // Botón "Aceptar" en el cuadro de diálogo
         builder.setPositiveButton("Aceptar", (dialog, which) -> {
+
+            // Configura la orientación a paisaje después de ingresar el nombre y seleccionar la dificultad
+            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            
             // Obtenemos el nombre ingresado y la dificultad seleccionada
             nombreJugador = input.getText().toString();
             dificultad = dificultadSpinner.getSelectedItem().toString();
