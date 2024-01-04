@@ -49,4 +49,8 @@ public class NaveEnemiga {
     public RectF getRect() {
         return new RectF((posX - RADIO_NAVE), (posY - RADIO_NAVE), (posX + RADIO_NAVE), (posY + RADIO_NAVE));
     }
+
+    public int getX() {
+        return (int) posX;
+    }
 }

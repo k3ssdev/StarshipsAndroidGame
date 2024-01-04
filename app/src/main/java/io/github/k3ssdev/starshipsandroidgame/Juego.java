@@ -44,6 +44,7 @@ public class Juego extends View {
     public static int radio;
     public int posX;
     public int posY;
+    public int posNaveEnemigaY;
     private RectF rectNaveJugador;
     private Bitmap bitmapNaveJugador;
     private Bitmap bitmapNaveEnemiga;
@@ -188,9 +189,7 @@ public class Juego extends View {
                 // Reagenda el temporizador con el retraso actualizado
                 timerNavesEnemigas.cancel();
                 timerNavesEnemigas = new Timer();
-                timerNaves
-
-Enemigas.schedule(new TimerTask() {
+                timerNavesEnemigas.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         handler.post(() -> {
@@ -383,73 +382,98 @@ Enemigas.schedule(new TimerTask() {
     }
 
     private void detectarColision() {
-        // Verificar colisiones con naves enemigas
-        Iterator<NaveEnemiga> iteratorEnemigas = navesEnemigas.iterator();
-        while (iteratorEnemigas.hasNext()) {
-            NaveEnemiga naveEnemiga = iteratorEnemigas.next();
+        List<NaveEnemiga> navesEliminadas = new ArrayList<>();
 
-            if (RectF.intersects(rectNaveJugador, naveEnemiga.getRect())) {
-                // Colisión con nave enemiga, finalizar el juego o realizar acciones adecuadas
-                finalizarJuego();
-                return;
+        for (NaveEnemiga nave : navesEnemigas) {
+            //if (RectF.intersects(rectNaveJugador, nave.getRect())) {
+            if (rectNaveJugador != null && RectF.intersects(rectNaveJugador, nave.getRect())) {
+
+                // Colisión con nave enemiga, muestra "Game Over" y la puntuación
+                mostrarGameOver();
+                return;  // Sale del método para evitar la concurrencia
             }
 
-            Iterator<Disparo> iteratorDisparos = disparos.iterator();
-            while (iteratorDisparos.hasNext()) {
-                Disparo disparo = iteratorDisparos.next();
-                if (RectF.intersects(disparo.getRect(), naveEnemiga.getRect())) {
-                    // Colisión con disparo, eliminar nave y disparo, incrementar puntuación
-                    iteratorDisparos.remove();
-                    iteratorEnemigas.remove();
-                    puntuacion += 10;  // Ajusta la puntuación según sea necesario
+            // Verifica colisiones con disparos
+            Iterator<Disparo> disparosIterator = disparos.iterator();
+            while (disparosIterator.hasNext()) {
+                Disparo disparo = disparosIterator.next();
+                if (RectF.intersects(disparo.getRect(), nave.getRect())) {
+                    // Colisión con disparo, incrementa la puntuación y elimina la nave y el disparo
+                    puntuacion += 1;
+                    disparosIterator.remove();
+                    navesEliminadas.add(nave);
                 }
             }
         }
+
+        // Elimina las naves enemigas que colisionaron
+        navesEnemigas.removeAll(navesEliminadas);
+
+        // Genera nuevas naves enemigas para reemplazar las eliminadas
+        for (int i = 0; i < navesEliminadas.size(); i++) {
+            generarNaveEnemiga();
+        }
     }
 
-    private void finalizarJuego() {
-        // Realiza acciones de finalización del juego
-        detenerJuego();
-        mostrarDialogoFinJuego();
-    }
-
-    private void detenerJuego() {
-        // Detener todos los temporizadores y liberar recursos
-        if (timerNavesEnemigas != null) {
-            timerNavesEnemigas.cancel();
-            timerNavesEnemigas.purge();
-        }
-
-        if (timerEstrellas != null) {
-            timerEstrellas.cancel();
-            timerEstrellas.purge();
-        }
-
-        if (timerDisparo != null) {
-            timerDisparo.cancel();
-            timerDisparo.purge();
-        }
-
-        if (musicaFondo != null) {
-            musicaFondo.stop();
-            musicaFondo.release();
-        }
-
+    private void mostrarGameOver() {
+        // Detener la música de fondo y sonidos
+        detenerMusicaFondo();
         detenerSonidoDisparo();
+
+        // Muestra "Game Over" y la puntuación
+        ((Activity) getContext()).runOnUiThread(() -> {
+            Toast.makeText(getContext(), "Game Over - Puntuación: " + puntuacion, Toast.LENGTH_LONG).show();
+
+            // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("¿Desea reiniciar el juego?");
+            builder.setPositiveButton("Sí", (dialog, which) -> reiniciarJuego());
+
+            // Agrega botón negativo para cerrar la aplicación
+            builder.setNegativeButton("No", (dialog, which) -> {
+                // Cierra la actividad actual (la aplicación)
+                ((Activity) getContext()).finish();
+            });
+
+            // Muestra realmente el cuadro de diálogo
+            builder.show();
+        });
+
+        // Pausa el juego y realiza otras acciones según sea necesario
+        pausarJuego();
     }
 
-    private void mostrarDialogoFinJuego() {
-        // Crear un cuadro de diálogo para mostrar la puntuación final
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("¡Juego Terminado!");
-        builder.setMessage("Puntuación: " + puntuacion);
-        builder.setPositiveButton("Aceptar", (dialog, which) -> {
-            // Cierra la aplicación al hacer clic en Aceptar
-            ((Activity) getContext()).finish();
-        });
-        builder.setCancelable(false); // Evita que se cierre el cuadro de diálogo al tocar fuera de él
-        builder.show();
+
+    private void pausarJuego() {
+        // Pausa el juego y realiza otras acciones según sea necesario
+        juegoEnPausa = true;
+        timerNavesEnemigas.cancel();
+        timerEstrellas.cancel();
+        increaseFrequencyTask.cancel();
+        navesEnemigasDelay = 4000; // Restaura el retraso inicial
+        navesEnemigas.clear();
+        estrellas.clear();
+        disparos.clear();
     }
+
+    private void reiniciarJuego() {
+        init();  // Reinicia el juego llamando al método init
+    }
+
+    private void detenerMusicaFondo() {
+        if (musicaFondo != null) {
+            musicaFondo.pause();
+            // Detener el temporizador de disparo
+            if (timerDisparo != null) {
+                timerDisparo.cancel();
+                timerDisparo.purge();
+            }
+            // Asegúrate de liberar los recursos del MediaPlayer cuando ya no se necesiten
+            musicaFondo.release();
+            musicaFondo = null;
+        }
+    }
+
 
     private void moverNavesEnemigas() {
         Iterator<NaveEnemiga> iterator = navesEnemigas.iterator();
