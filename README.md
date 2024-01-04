@@ -5,12 +5,32 @@
 Starships Android Game es un juego simple desarrollado en Android como proyecto para la asignatura M08 (Programación para dispositivos móviles) de DAM. ¡Pilota la nave, esquiva las naves enemigas y destrúyelas para obtener la puntuación más alta!
 
 
-## Características
+## Características Adicionales
 
-- Controles táctiles simples para mover tu nave.
-- Naves enemigas generadas aleatoriamente.
-- Dificultad creciente con el tiempo.
-- Fondo dinámico de estrellas generadas aleatoriamente.
+- **Movimiento Suave:** La nave del jugador se mueve suavemente en respuesta a los toques de pantalla, proporcionando una experiencia de juego fluida.
+
+- **Generación Dinámica de Naves Enemigas:** Las naves enemigas se generan dinámicamente, lo que significa que el juego se vuelve más desafiante con el tiempo al incrementar la frecuencia de aparición de naves enemigas.
+
+- **Estrellas en el Fondo:** El fondo del juego presenta un efecto visual atractivo con estrellas generadas aleatoriamente, proporcionando un entorno espacial inmersivo.
+
+- **Disparos y Colisiones:** El jugador puede disparar y destruir naves enemigas, mientras que las colisiones con las naves enemigas conducen a un final de juego.
+
+- **Puntuación Dinámica:** La puntuación se incrementa cada vez que el jugador destruye con éxito una nave enemiga, lo que añade un elemento competitivo al juego.
+
+- **Ajuste de Dificultad:** La dificultad del juego es configurable, permitiendo a los jugadores elegir entre niveles de dificultad como "Fácil", "Normal" o "Difícil".
+
+- **Personalización del Jugador:** Al inicio del juego, se solicita al jugador que ingrese su nombre y seleccione la dificultad, proporcionando una experiencia personalizada.
+
+- **Música y Efectos de Sonido:** El juego cuenta con música de fondo y efectos de sonido, mejorando la experiencia auditiva del jugador.
+
+- **Reinicio del Juego:** Después de una colisión, el jugador puede elegir reiniciar el juego desde el principio.
+
+- **Pausa Automática:** El juego se pausa automáticamente cuando se muestra el cuadro de diálogo para ingresar el nombre y seleccionar la dificultad.
+
+- **Manejo de Recursos de Audio:** Los recursos de audio, como la música de fondo y los efectos de sonido, se gestionan adecuadamente para evitar problemas de memoria.
+
+Recuerda actualizar esta sección según los cambios y características específicas que desees destacar en tu juego.
+
 
 ## Capturas de Pantalla
 
@@ -28,3 +48,10 @@ WIP
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 
+## Fuentes de los Recursos Utilizados
+
+- **Música**: [Space Dimensions (8bit/Retro Version)](https://opengameart.org/content/space-dimensions-8bitretro-version) (Licencia: Creative Commons)
+- **Sonido de Laser**: [Laser Fire](https://opengameart.org/content/laser-fire) (Licencia: Creative Commons)
+- **Sprites de Naves**: [Space Ship Construction Kit](https://opengameart.org/content/space-ship-construction-kit) (Licencia: GPL-3.0)
+
+Ten en cuenta que debes respetar y cumplir con los términos de las licencias de cada recurso utilizado en tu proyecto.
