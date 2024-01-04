@@ -4,15 +4,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 public class MainActivity extends AppCompatActivity {
+
     private Juego juego;
     private final Handler handler = new Handler();
 
@@ -29,14 +27,14 @@ public class MainActivity extends AppCompatActivity {
         // Oculta la barra de estado (barra superior)
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-
         setContentView(R.layout.activity_main);
 
+        // Obtiene la referencia al componente de juego en el layout
         juego = findViewById(R.id.Pantalla);
 
+        // Calcula el ancho y alto una vez que se ha pintado el layout
         ViewTreeObserver obs = juego.getViewTreeObserver();
         obs.addOnGlobalLayoutListener(() -> {
-            // Se calcula el ancho y alto una vez ya se ha pintado el layout
             Juego.ancho = juego.getWidth();
             Juego.alto = juego.getHeight();
             juego.posX = 250;  // Establece la posición inicial de la nave del jugador
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             juego.posNaveEnemigaY = 50;
         });
 
-        // Ejecutamos la actualización del juego cada 20 milisegundos
+        // Ejecuta la actualización del juego cada 30 milisegundos
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
