@@ -1,9 +1,3 @@
-package io.github.k3ssdev.starshipsandroidgame;
-
-import android.graphics.RectF;
-
-import java.util.Random;
-
 // Clase para representar las naves enemigas
 public class NaveEnemiga {
 
@@ -21,15 +15,18 @@ public class NaveEnemiga {
 
     // Método para ajustar la velocidad de las naves en función de la dificultad
     public void ajustarVelocidad(String dificultad) {
+        float multiplicador = 1.0f; // Multiplicador por defecto para la dificultad Normal
+
         switch (dificultad) {
             case "Fácil":
-                velocidad = 5; // Velocidad más baja para Fácil
+                velocidad = 5 * multiplicador; // Velocidad más baja para Fácil
                 break;
             case "Difícil":
-                velocidad = 15; // Velocidad más alta para Difícil
+                multiplicador = 1.5f; // Multiplicador para Difícil
+                velocidad = 15 * multiplicador; // Velocidad más alta para Difícil
                 break;
             default:
-                velocidad = 10; // Por defecto, velocidad normal
+                velocidad = 10 * multiplicador; // Por defecto, velocidad normal
                 break;
         }
     }
@@ -38,7 +35,7 @@ public class NaveEnemiga {
     public void mover() {
         posX -= velocidad;
 
-        // La nave vuelve a aparecer cuando se salga de la pantalla
+        // La nave vuelve a aparecer cuando se sale de la pantalla
         if (posX + RADIO_NAVE < 0) {
             posY = random.nextInt(Juego.alto);
             posX = Juego.ancho;
