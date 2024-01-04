@@ -129,7 +129,11 @@ public class Juego extends View {
             dificultad = dificultadSpinner.getSelectedItem().toString();
 
             // Mostramos un mensaje de bienvenida
+            if (nombreJugador == null || nombreJugador.trim().isEmpty()) {
+                nombreJugador = "Jugador";
+            }
             Toast.makeText(getContext(), "¡Bienvenido, " + nombreJugador + "!", Toast.LENGTH_SHORT).show();
+
 
             // Inicializamos el juego después de hacer clic en Aceptar
             juegoEnPausa = false;
@@ -426,7 +430,8 @@ public class Juego extends View {
 
             // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("¿Desea reiniciar el juego?");
+            builder.setTitle("GAME OVER");
+            builder.setMessage("¿Desea reiniciar el juego?");
             builder.setPositiveButton("Sí", (dialog, which) -> reiniciarJuego());
 
             // Agrega botón negativo para cerrar la aplicación
@@ -457,8 +462,22 @@ public class Juego extends View {
     }
 
     private void reiniciarJuego() {
-        init();  // Reinicia el juego llamando al método init
+        // Detener la música de fondo y sonidos
+        detenerMusicaFondo();
+        detenerSonidoDisparo();
+
+        // Restablece las variables del juego
+        juegoEnPausa = true;
+        navesEnemigasDelay = 4000; // Restaura el retraso inicial
+        puntuacion = 0;
+        navesEnemigas.clear();
+        estrellas.clear();
+        disparos.clear();
+
+        // Muestra un cuadro de diálogo solo si el juego está en pausa
+        mostrarDialogoNombreYDificultad();
     }
+
 
     private void detenerMusicaFondo() {
         if (musicaFondo != null) {
