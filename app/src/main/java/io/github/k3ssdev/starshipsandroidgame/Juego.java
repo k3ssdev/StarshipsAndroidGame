@@ -23,10 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -89,7 +87,6 @@ public class Juego extends View {
     }
 
     private void init() {
-
         // Carga las imágenes de jugador y enemigo
         bitmapNaveJugador = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player);
         bitmapNaveEnemiga = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.enemy);
@@ -100,7 +97,6 @@ public class Juego extends View {
         } else {
             // Inicializa el juego solo si no está en pausa
             iniciarJuego();
-
         }
     }
 
@@ -133,7 +129,11 @@ public class Juego extends View {
             dificultad = dificultadSpinner.getSelectedItem().toString();
 
             // Mostramos un mensaje de bienvenida
+            if (nombreJugador == null || nombreJugador.trim().isEmpty()) {
+                nombreJugador = "Jugador";
+            }
             Toast.makeText(getContext(), "¡Bienvenido, " + nombreJugador + "!", Toast.LENGTH_SHORT).show();
+
 
             // Inicializamos el juego después de hacer clic en Aceptar
             juegoEnPausa = false;
@@ -160,9 +160,6 @@ public class Juego extends View {
         puntos.setTextAlign(Paint.Align.RIGHT);
         puntos.setTextSize(100);
         puntos.setColor(Color.WHITE);
-
-
-
 
         // Temporizador para disparos
         timerDisparo = new Timer();
@@ -227,7 +224,6 @@ public class Juego extends View {
         }, 0, 1000); // Ajusta la frecuencia de generación de estrellas (1000 milisegundos en este ejemplo)
     }
 
-
     // Método para dibujar la nave del jugador
     private void dibujarNaveJugador(Canvas canvas) {
         float left = 450 - RADIO_JUGADOR;
@@ -239,10 +235,6 @@ public class Juego extends View {
         canvas.drawBitmap(bitmapNaveJugador, null, rectNaveJugador, null);
     }
 
-
-
-
-
     // Método para dibujar las naves enemigas
     private void dibujarNavesEnemigas(Canvas canvas) {
         for (NaveEnemiga nave : navesEnemigas) {
@@ -250,7 +242,6 @@ public class Juego extends View {
             canvas.drawBitmap(bitmapNaveEnemiga, null, rectNaveEnemiga, null);
         }
     }
-
 
     private void generarNaveEnemiga() {
         NaveEnemiga nuevaNave = new NaveEnemiga(ancho, alto, dificultad);
@@ -264,7 +255,6 @@ public class Juego extends View {
         int y2 = y1 + random.nextInt(5) - 2;
         estrellas.add(new Estrella(x1, y1, x2, y2));
     }
-
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
@@ -286,7 +276,6 @@ public class Juego extends View {
             canvas.drawLine(s.getX1(), s.getY1(), s.getX2(), s.getY2(), estrella);
         }
 
-
         // Pinta la nave del jugador
         dibujarNaveJugador(canvas);
 
@@ -304,7 +293,6 @@ public class Juego extends View {
             canvas.drawRect(disparo.getX(), disparo.getY(), disparo.getX() + longitudLaser, disparo.getY() + 5, disparoPaint);
         }
     }
-
 
     // Método para disparar
     private void disparar() {
@@ -352,7 +340,6 @@ public class Juego extends View {
         return true;
     }
 
-
     // Método para actualizar la posición de la nave del jugador suavemente
     private void actualizarPosicionNaveSuavemente(int nuevaPosY) {
         float left = 450 - RADIO_JUGADOR;
@@ -376,7 +363,6 @@ public class Juego extends View {
         invalidate();
     }
 
-
     public void actualizarJuego() {
         moverNavesEnemigas();
         moverEstrellas();
@@ -392,22 +378,10 @@ public class Juego extends View {
             disparo.mover();
 
             // Eliminar disparos que salen de la pantalla
+                       // Eliminar disparos que salen de la pantalla
             if (disparo.getX() > ancho) {
                 iterator.remove();
             }
-        }
-    }
-
-
-    private void moverNavesEnemigas() {
-        for (NaveEnemiga nave : navesEnemigas) {
-            nave.mover();
-        }
-    }
-
-    private void moverEstrellas() {
-        for (Estrella estrella : estrellas) {
-            estrella.mover();
         }
     }
 
@@ -456,7 +430,8 @@ public class Juego extends View {
 
             // Muestra un cuadro de diálogo para reiniciar o cerrar el juego
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("¿Desea reiniciar el juego?");
+            builder.setTitle("GAME OVER");
+            builder.setMessage("¿Desea reiniciar el juego?");
             builder.setPositiveButton("Sí", (dialog, which) -> reiniciarJuego());
 
             // Agrega botón negativo para cerrar la aplicación
@@ -474,7 +449,6 @@ public class Juego extends View {
     }
 
 
-
     private void pausarJuego() {
         // Pausa el juego y realiza otras acciones según sea necesario
         juegoEnPausa = true;
@@ -487,10 +461,23 @@ public class Juego extends View {
         disparos.clear();
     }
 
-
     private void reiniciarJuego() {
-        init();  // Reinicia el juego llamando al método init
+        // Detener la música de fondo y sonidos
+        detenerMusicaFondo();
+        detenerSonidoDisparo();
+
+        // Restablece las variables del juego
+        juegoEnPausa = true;
+        navesEnemigasDelay = 4000; // Restaura el retraso inicial
+        puntuacion = 0;
+        navesEnemigas.clear();
+        estrellas.clear();
+        disparos.clear();
+
+        // Muestra un cuadro de diálogo solo si el juego está en pausa
+        mostrarDialogoNombreYDificultad();
     }
+
 
     private void detenerMusicaFondo() {
         if (musicaFondo != null) {
@@ -506,5 +493,29 @@ public class Juego extends View {
         }
     }
 
-}
 
+    private void moverNavesEnemigas() {
+        Iterator<NaveEnemiga> iterator = navesEnemigas.iterator();
+        while (iterator.hasNext()) {
+            NaveEnemiga naveEnemiga = iterator.next();
+            naveEnemiga.mover();
+            if (naveEnemiga.getX() < 0) {
+                // Elimina la nave enemiga si sale de la pantalla
+                iterator.remove();
+            }
+        }
+    }
+
+    private void moverEstrellas() {
+        Iterator<Estrella> iterator = estrellas.iterator();
+        while (iterator.hasNext()) {
+            Estrella estrella = iterator.next();
+            estrella.mover();
+            if (estrella.getY1() > alto || estrella.getY2() > alto) {
+                // Elimina la estrella si sale de la pantalla
+                iterator.remove();
+            }
+        }
+    }
+
+}
