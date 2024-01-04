@@ -2,10 +2,13 @@ package io.github.k3ssdev.starshipsandroidgame;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
