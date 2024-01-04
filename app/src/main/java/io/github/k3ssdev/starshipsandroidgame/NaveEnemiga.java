@@ -1,3 +1,9 @@
+package io.github.k3ssdev.starshipsandroidgame;
+
+import android.graphics.RectF;
+
+import java.util.Random;
+
 // Clase para representar las naves enemigas
 public class NaveEnemiga {
 
