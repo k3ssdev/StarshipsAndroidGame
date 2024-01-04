@@ -27,6 +27,11 @@ public class MainActivity extends AppCompatActivity {
         // Oculta la barra de estado (barra superior)
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        // Oculta la barra de navegación (barra de botones)
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE;
+        decorView.setSystemUiVisibility(uiOptions);
+
         setContentView(R.layout.activity_main);
 
         // Obtiene la referencia al componente de juego en el layout
